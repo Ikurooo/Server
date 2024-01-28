@@ -233,10 +233,11 @@ static void writeResponse(int code, const char *response, int clientSocket, char
  * @return the entire request allocated DYNAMICALLY
  */
 static char* receiveHeader(int clientSocket) {
-    char *request = NULL;
+    char *request = malloc(BUFFER_SIZE);
     char buffer[BUFFER_SIZE];
-    size_t bytesRead = 0;
-    size_t totalBytesRead = 8;
+
+    size_t bytesRead = bytesRead = recv(clientSocket, request, sizeof(request) - 1, 0);
+    size_t totalBytesRead = bytesRead;
 
     while ((bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 2, 0)) > 0) {
         buffer[bytesRead] = '\0';
