@@ -236,28 +236,31 @@ static char* receiveHeader(int clientSocket) {
     char *request = malloc(BUFFER_SIZE);
     char buffer[BUFFER_SIZE];
 
-    size_t bytesRead = bytesRead = recv(clientSocket, request, sizeof(request) - 1, 0);
-    size_t totalBytesRead = bytesRead;
+    size_t bytesRead = 0;
+    size_t totalBytesRead = recv(clientSocket, request, BUFFER_SIZE - 1, 0);
+    request[totalBytesRead] = '\0';  // Ensure null-termination
 
-    while ((bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 2, 0)) > 0) {
-        buffer[bytesRead] = '\0';
+    while ((bytesRead = recv(clientSocket, buffer, sizeof(buffer) - 1, 0)) > 0) {
+        buffer[bytesRead] = '\0';  // Ensure null-termination
         totalBytesRead += bytesRead;
 
-        char *temp = realloc(request, totalBytesRead);
+        char *temp = realloc(request, totalBytesRead + 1);
         if (temp == NULL) {
             free(request);
             return strdup("ERROR 500 HTTP/1.1");
         }
         request = temp;
-        request = strcat(request, buffer);
 
-        if (strstr(buffer, "\r\n\r\n") != NULL) {
+        strcat(request, buffer);
+
+        if (strstr(request, "\r\n\r\n") != NULL) {
             break;
         }
     }
 
     fprintf(stderr, "%s", request);
     return request;
+
 }
 
 // SYNOPSIS
